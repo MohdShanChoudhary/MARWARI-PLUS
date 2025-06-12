@@ -1,25 +1,19 @@
 const mongoose = require('mongoose');
 
-// Create user schema
 const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-  },
-  password: {
-    type: String,
-    required: true,
-  }
-}, {
-  timestamps: true, // adds createdAt and updatedAt automatically
+  name: { type: String, required: true },  // removed `unique: true`
+  phone: { type: String, required: true },
+
+  email: { type: String, required: true },
+
+
+  transactionType: { type: String, enum: ['Buy', 'Sell'], required: true },
+  amount: { type: Number, required: true },
+  payableAmount: { type: Number },
+  receivedAmount: { type: Number },
+  pendingAmount: { type: Number },
+  remarks: { type: String },
+  date: { type: Date, default: Date.now }
 });
 
-// Export model
 module.exports = mongoose.model('User', userSchema);
