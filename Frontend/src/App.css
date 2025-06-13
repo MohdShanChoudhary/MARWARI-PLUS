@@ -2,7 +2,7 @@
 
 .navbar {
   background: linear-gradient(to right, indigo, purple, pink);
-  padding: 16px;
+  padding: 20px;
   position: relative;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }

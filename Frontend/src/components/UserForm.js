@@ -1,21 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const UserForm = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    phone: '',
-    email: '',
-    transactionType: 'Buy',
-    amount: '',
-    payableAmount: '',
-    receivedAmount: '',
-    pendingAmount: 0,
-    remarks: ''
-  });
+const UserForm = ({ initialData = null, onSubmit, onCancel }) => {
+  const [formData, setFormData] = useState(
+    initialData || {
+      name: '',
+      phone: '',
+      email: '',
+      transactionType: 'Buy',
+      amount: '',
+      payableAmount: '',
+      receivedAmount: '',
+      pendingAmount: 0,
+      remarks: ''
+    }
+  );
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,9 +56,13 @@ const UserForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/users', formData);
-      alert("✅ Client added successfully!");
-      navigate('/users');
+      if (onSubmit) {
+        await onSubmit(formData);
+      } else {
+        await axios.post('http://localhost:5000/api/users', formData);
+        alert("✅ Client added successfully!");
+        navigate('/users');
+      }
     } catch (error) {
       alert(error.response?.data?.message || "❌ Submission failed");
       console.error(error);
@@ -109,7 +121,7 @@ const UserForm = () => {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.heading}>Client Detail Entry</h2>
+      <h2 style={styles.heading}>{initialData ? 'Edit Client' : 'Client Detail Entry'}</h2>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
@@ -207,7 +219,15 @@ const UserForm = () => {
           style={styles.textarea}
         />
 
-        <button type="submit" style={styles.submitBtn}>Submit</button>
+        <button type="submit" style={styles.submitBtn}>
+          {initialData ? 'Update' : 'Submit'}
+        </button>
+
+        {onCancel && (
+          <button type="button" onClick={onCancel} style={{ ...styles.submitBtn, backgroundColor: '#dc3545', marginTop: '10px' }}>
+            Cancel
+          </button>
+        )}
       </form>
     </div>
   );

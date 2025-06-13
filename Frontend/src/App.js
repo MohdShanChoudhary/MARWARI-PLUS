@@ -1,9 +1,11 @@
-// src/App.js
+// App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import UserForm from './components/UserForm';
 import UserList from './components/UserList';
-import './App.css'; // Link to plain CSS file
+import EditUser from './components/EditUser'; // 🔥 New
+
+import './App.css';
 
 const App = () => {
   return (
@@ -19,6 +21,7 @@ const App = () => {
       <Routes>
         <Route path="/" element={<UserForm />} />
         <Route path="/users" element={<UserList />} />
+        <Route path="/edit/:id" element={<EditUser />} /> {/* 🔥 New route */}
       </Routes>
     </Router>
   );

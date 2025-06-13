@@ -1,10 +1,15 @@
+// UserList.js
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const UserList = () => {
   const [users, setUsers] = useState([]);
   const [filter, setFilter] = useState('All');
-  const [editUser, setEditUser] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUsers();
@@ -30,30 +35,52 @@ const UserList = () => {
     }
   };
 
-  const handleEdit = (user) => {
-    setEditUser(user);
-  };
-
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.put(`http://localhost:5000/api/users/${editUser._id}`, editUser);
-      setEditUser(null);
-      fetchUsers();
-    } catch (error) {
-      console.error('Error updating user:', error);
-    }
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditUser((prev) => ({
-      ...prev,
-      [name]: value
-    }));
+  const handleEdit = (userId) => {
+    navigate(`/edit/${userId}`);
   };
 
   const filteredUsers = filter === 'All' ? users : users.filter(user => user.transactionType === filter);
+
+  // Excel export function
+  const exportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Client List');
+
+    worksheet.columns = [
+      { header: 'Name', key: 'name', width: 20 },
+      { header: 'Phone', key: 'phone', width: 15 },
+      { header: 'Email', key: 'email', width: 25 },
+      { header: 'Type', key: 'transactionType', width: 10 },
+      { header: 'Amount', key: 'amount', width: 12 },
+      { header: 'Payable', key: 'payableAmount', width: 12 },
+      { header: 'Received', key: 'receivedAmount', width: 12 },
+      { header: 'Pending', key: 'pendingAmount', width: 12 },
+      { header: 'Remarks', key: 'remarks', width: 25 },
+      { header: 'Date', key: 'date', width: 15 }
+    ];
+
+    filteredUsers.forEach((user) => {
+      worksheet.addRow({
+        name: user.name,
+        phone: user.phone,
+        email: user.email,
+        transactionType: user.transactionType,
+        amount: user.amount,
+        payableAmount: user.payableAmount || '-',
+        receivedAmount: user.receivedAmount || '-',
+        pendingAmount: user.pendingAmount,
+        remarks: user.remarks,
+        date: new Date(user.date).toLocaleDateString()
+      });
+    });
+
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    saveAs(blob, 'clients.xlsx');
+  };
 
   return (
     <div style={{ maxWidth: '95%', margin: '20px auto', padding: '20px', background: '#f2f2f2', borderRadius: '8px' }}>
@@ -65,6 +92,13 @@ const UserList = () => {
         <option value="Buy">Buy</option>
         <option value="Sell">Sell</option>
       </select>
+
+      <button
+        onClick={exportToExcel}
+        style={{ marginLeft: '15px', padding: '5px 15px', cursor: 'pointer' }}
+      >
+        Export to Excel
+      </button>
 
       <table border="1" cellPadding="8" style={{ marginTop: '15px', width: '100%', background: '#fff' }}>
         <thead>
@@ -96,35 +130,13 @@ const UserList = () => {
               <td>{user.remarks}</td>
               <td>{new Date(user.date).toLocaleDateString()}</td>
               <td>
-                <button onClick={() => handleEdit(user)}>Edit</button>
+                <button onClick={() => handleEdit(user._id)}>Edit</button>
                 <button onClick={() => handleDelete(user._id)} style={{ marginLeft: '5px' }}>Delete</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-
-      {editUser && (
-        <div style={{ marginTop: '30px', padding: '15px', background: '#fff', border: '1px solid #ccc' }}>
-          <h3>Edit User: {editUser.name}</h3>
-          <form onSubmit={handleUpdate}>
-            <input name="name" value={editUser.name} onChange={handleInputChange} placeholder="Name" required /><br />
-            <input name="phone" value={editUser.phone} onChange={handleInputChange} placeholder="Phone" required /><br />
-            <input name="email" value={editUser.email} onChange={handleInputChange} placeholder="Email" required /><br />
-            <select name="transactionType" value={editUser.transactionType} onChange={handleInputChange}>
-              <option value="Buy">Buy</option>
-              <option value="Sell">Sell</option>
-            </select><br />
-            <input name="amount" value={editUser.amount} onChange={handleInputChange} placeholder="Amount" required /><br />
-            <input name="payableAmount" value={editUser.payableAmount || ''} onChange={handleInputChange} placeholder="Payable" /><br />
-            <input name="receivedAmount" value={editUser.receivedAmount || ''} onChange={handleInputChange} placeholder="Received" /><br />
-            <input name="pendingAmount" value={editUser.pendingAmount || ''} onChange={handleInputChange} placeholder="Pending" /><br />
-            <input name="remarks" value={editUser.remarks || ''} onChange={handleInputChange} placeholder="Remarks" /><br /><br />
-            <button type="submit">Update</button>
-            <button type="button" onClick={() => setEditUser(null)} style={{ marginLeft: '10px' }}>Cancel</button>
-          </form>
-        </div>
-      )}
     </div>
   );
 };
