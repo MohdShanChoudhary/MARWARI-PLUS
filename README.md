@@ -40,3 +40,62 @@ A simple and powerful money management web app for tracking Buy/Sell transaction
 ---
 ## 📤 Export to Excel
 We use the xlsx library in the frontend to convert the table data into an Excel sheet and trigger download.
+
+---
+###### 🏁 Run the App
+
+### 🖥️ 1. Start the Backend Server
+
+1. Open terminal and go to the backend folder:
+   ```bash
+   cd backend
+   ```
+
+2. Install required packages:
+   ```bash
+   npm install
+   ```
+
+3. Create a `.env` file and add your MongoDB URI and port:
+   ```env
+   MONGO_URI=your_mongodb_connection_string
+   PORT=5000
+   ```
+
+4. Start the backend server using nodemon:
+   ```bash
+   npx nodemon index.js
+   ```
+
+5. If everything is correct, your terminal will show:
+   ```bash
+   ✅ Connected to MongoDB
+   🚀 Server running on http://localhost:5000
+   ```
+
+---
+
+### 🌐 2. Start the Frontend (React App)
+
+1. Open a **new terminal window or tab**
+
+2. Go to the frontend folder:
+   ```bash
+   cd frontend
+   ```
+
+3. Install frontend dependencies (first time only):
+   ```bash
+   npm install
+   ```
+
+4. Start the React development server:
+   ```bash
+   npm start
+   ```
+
+5. The app will be available at:
+   ```bash
+   🌐 http://localhost:3000
+   ```
+
